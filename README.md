@@ -59,13 +59,63 @@ graph TD
 ## 📁 Project Structure
 
 ```
-├── infra/           ☸️ Terraform — AWS resources
-├── sre-brain/       🧠 Lambda — AI incident handler
-├── dashboard/       📊 SRE Command Center — web UI
-├── vm-image/        🎯 EC2 bootstrap / demo app
-├── chaos-scripts/   💥 Chaos engineering
-├── docs/            📚 TROUBLESHOOTING, API, RUNBOOK, SLO
-└── .github/         ⚙️ CI pipeline, templates
+├── infra/                  ☸️ Terraform — AWS resources
+│   ├── main.tf
+│   ├── variables.tf
+│   ├── terraform.tfvars.example
+│   └── cw-agent-config.json
+├── sre-brain/              🧠 Lambda — AI incident handler
+│   └── handler.py
+├── dashboard/              📊 SRE Command Center — web UI
+│   ├── app.py
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   └── static/
+│       ├── index.html
+│       ├── css/styles.css
+│       └── js/app.js
+├── vm-image/               🎯 EC2 bootstrap / demo app
+│   ├── app.py
+│   ├── user_data.sh
+│   ├── requirements.txt
+│   └── Dockerfile
+├── chaos-scripts/          💥 Chaos engineering
+│   └── chaos_master.py
+├── scripts/                🔧 Build & utilities
+│   ├── build-lambda.py
+│   ├── build-lambda.sh
+│   └── clean-infra-artifacts.sh
+├── docs/                   📚 Documentation
+│   ├── TROUBLESHOOTING.md
+│   ├── API.md
+│   ├── RUNBOOK.md
+│   ├── SLO.md
+│   └── architecture-decisions/
+│       └── ADR-001-approval-mode.md
+├── tests/                  🧪 Unit tests
+│   ├── conftest.py
+│   ├── test_chaos_master.py
+│   ├── test_dashboard_api.py
+│   ├── test_handler.py
+│   └── test_vm_image.py
+├── .github/                ⚙️ CI/CD & templates
+│   ├── workflows/
+│   │   ├── ci.yml
+│   │   └── release.yml
+│   ├── ISSUE_TEMPLATE/
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   ├── dependabot.yml
+│   └── CODEOWNERS
+├── ARCHITECTURE.md
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── LICENSE
+├── Makefile
+├── SECURITY.md
+├── docker-compose.yml
+├── pyproject.toml
+├── requirements-dev.txt
+└── .env.example
 ```
 
 ---
