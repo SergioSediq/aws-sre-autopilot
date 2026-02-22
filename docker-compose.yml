@@ -1,0 +1,13 @@
+# Local development: run dashboard
+services:
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - AWS_REGION=${AWS_REGION:-ap-south-1}
+      - DYNAMODB_TABLE=${DYNAMODB_TABLE:-sre-incidents}

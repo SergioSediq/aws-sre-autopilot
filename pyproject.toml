@@ -1,0 +1,16 @@
+[project]
+name = "ai-incident-sre"
+version = "1.0.0"
+description = "AI-powered SRE platform for self-healing infrastructure on AWS"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["chaos-scripts", "dashboard", "vm-image"]
+addopts = "-v"
+asyncio_mode = "auto"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+exclude = [".terraform", "venv", "__pycache__"]

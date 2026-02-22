@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRE Command Center — AI Incident Remediation</title>
+    <meta name="description"
+        content="AI-powered SRE Command Center for automated incident detection, diagnosis, and remediation.">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233B82F6' stroke-width='2'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E">
+</head>
+
+<body>
+    <!-- Loading Bar -->
+    <div class="loading-bar" id="loadingBar"></div>
+
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="logo-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1>SRE Command Center</h1>
+                        <span>AI Incident Ops</span>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-item active" data-view="overview" onclick="switchView('overview')">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7" rx="1" />
+                            <rect x="14" y="3" width="7" height="7" rx="1" />
+                            <rect x="3" y="14" width="7" height="7" rx="1" />
+                            <rect x="14" y="14" width="7" height="7" rx="1" />
+                        </svg>
+                    </span>
+                    <span>Overview</span>
+                </div>
+                <div class="nav-item" data-view="incidents" onclick="switchView('incidents')">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                            <line x1="12" y1="9" x2="12" y2="13" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                        </svg>
+                    </span>
+                    <span>Incidents</span>
+                    <span class="badge" id="incidentBadge" style="display:none">0</span>
+                </div>
+                <div class="nav-item" data-view="logs" onclick="switchView('logs')">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                            <line x1="16" y1="13" x2="8" y2="13" />
+                            <line x1="16" y1="17" x2="8" y2="17" />
+                            <polyline points="10 9 9 9 8 9" />
+                        </svg>
+                    </span>
+                    <span>Live Logs</span>
+                </div>
+                <div class="nav-item" data-view="health" onclick="switchView('health')">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                        </svg>
+                    </span>
+                    <span>System Health</span>
+                </div>
+                <div class="nav-item" data-view="chaos" onclick="switchView('chaos')">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                        </svg>
+                    </span>
+                    <span>Chaos Lab</span>
+                </div>
+                <div class="nav-item" data-view="metrics" onclick="switchView('metrics')">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10" />
+                            <line x1="12" y1="20" x2="12" y2="4" />
+                            <line x1="6" y1="20" x2="6" y2="14" />
+                        </svg>
+                    </span>
+                    <span>Metrics</span>
+                </div>
+                <div class="nav-item" data-view="archives" onclick="switchView('archives')">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="21 8 21 21 3 21 3 8" />
+                            <rect x="1" y="3" width="22" height="5" />
+                            <line x1="10" y1="12" x2="14" y2="12" />
+                        </svg>
+                    </span>
+                    <span>Archives</span>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="connection-status">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="connectionText">Connected</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Overview View -->
+            <div class="view active" id="view-overview">
+                <div class="page-header">
+                    <div>
+                        <div class="page-title">Dashboard Overview</div>
+                        <div class="page-subtitle">Real-time system health and incident summary</div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="refreshAll()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 4 23 10 17 10" />
+                                <polyline points="1 20 1 14 7 14" />
+                                <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+                            </svg>
+                            Refresh
+                        </button>
+                        <span class="last-updated" id="lastUpdated"></span>
+                    </div>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="stats-row">
+                    <div class="stat-card red">
+                        <div class="stat-header">
+                            <span class="stat-label">Active Incidents</span>
+                            <span class="stat-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path
+                                        d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                                    <line x1="12" y1="9" x2="12" y2="13" />
+                                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="stat-value" id="stat-active">0</div>
+                        <div class="stat-detail" id="stat-active-detail">Loading...</div>
+                    </div>
+                    <div class="stat-card amber">
+                        <div class="stat-header">
+                            <span class="stat-label">Pending Approval</span>
+                            <span class="stat-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <polyline points="12 6 12 12 16 14" />
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="stat-value" id="stat-pending">0</div>
+                        <div class="stat-detail" id="stat-pending-detail">Awaiting operator input</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-header">
+                            <span class="stat-label">Healthy Instances</span>
+                            <span class="stat-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="stat-value" id="stat-healthy">&mdash;</div>
+                        <div class="stat-detail" id="stat-healthy-detail">ASG instances</div>
+                    </div>
+                    <div class="stat-card blue">
+                        <div class="stat-header">
+                            <span class="stat-label">Total Resolved</span>
+                            <span class="stat-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                                    <polyline points="22 4 12 14.01 9 11.01" />
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="stat-value" id="stat-resolved">0</div>
+                        <div class="stat-detail" id="stat-resolved-detail">Successfully remediated</div>
+                    </div>
+                </div>
+
+                <!-- Pending Approvals -->
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <svg class="section-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                            Pending Approvals
+                        </div>
+                    </div>
+                    <div id="pendingApprovals">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                                    <polyline points="22 4 12 14.01 9 11.01" />
+                                </svg>
+                            </div>
+                            <p>No pending approvals &mdash; all clear!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <svg class="section-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                            </svg>
+                            Recent Activity
+                        </div>
+                        <button class="btn btn-secondary" onclick="switchView('incidents')">View All
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="9 18 15 12 9 6" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="recentActivity">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                                    <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" />
+                                </svg>
+                            </div>
+                            <p>No recent activity</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Incidents View -->
+            <div class="view" id="view-incidents">
+                <div class="page-header">
+                    <div>
+                        <div class="page-title">Incident Management</div>
+                        <div class="page-subtitle">AI-detected incidents with remediation workflow</div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="loadIncidents()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="23 4 23 10 17 10" />
+                                <polyline points="1 20 1 14 7 14" />
+                                <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+                            </svg>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="incident-list" id="incidentList">
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            </svg>
+                        </div>
+                        <p>No incidents recorded yet. Trigger a chaos scenario to start!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Logs View -->
+            <div class="view" id="view-logs">
+                <div class="page-header">
+                    <div>
+                        <div class="page-title">Live Agent Logs</div>
+                        <div class="page-subtitle">Real-time Lambda execution logs from CloudWatch</div>
+                    </div>
+                    <div class="header-actions">
+                        <select id="logMinutes" class="btn btn-secondary" onchange="loadLogs()"
+                            style="appearance:auto;background:var(--bg-elevated)">
+                            <option value="15">Last 15 min</option>
+                            <option value="30">Last 30 min</option>
+                            <option value="60" selected>Last 1 hour</option>
+                            <option value="180">Last 3 hours</option>
+                            <option value="720">Last 12 hours</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="loadLogs()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="23 4 23 10 17 10" />
+                                <polyline points="1 20 1 14 7 14" />
+                                <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+                            </svg>
+                            Refresh
+                        </button>
+                        <button class="btn btn-primary" id="autoScrollBtn" onclick="toggleAutoScroll()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="12" y1="19" x2="12" y2="5" />
+                                <polyline points="5 12 12 5 19 12" />
+                            </svg>
+                            Auto-Scroll
+                        </button>
+                    </div>
+                </div>
+                <div class="log-viewer" id="logViewer">
+                    <div class="log-toolbar">
+                        <div class="log-toolbar-left">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)"
+                                stroke-width="2">
+                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                            </svg>
+                            <span style="font-size:12px;color:var(--text-muted)">CloudWatch:
+                                <code>/aws/lambda/sre-brain-handler</code></span>
+                        </div>
+                        <span style="font-size:11px;color:var(--text-muted)" id="logCount">0 entries</span>
+                    </div>
+                    <div id="logEntries">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                </svg>
+                            </div>
+                            <p>Loading logs...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Health View -->
+            <div class="view" id="view-health">
+                <div class="page-header">
+                    <div>
+                        <div class="page-title">System Health</div>
+                        <div class="page-subtitle">EC2 instances, CloudWatch alarms, and infrastructure status</div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="loadHealth()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="23 4 23 10 17 10" />
+                                <polyline points="1 20 1 14 7 14" />
+                                <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+                            </svg>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <svg class="section-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
+                                <rect x="2" y="14" width="20" height="8" rx="2" ry="2" />
+                                <line x1="6" y1="6" x2="6.01" y2="6" />
+                                <line x1="6" y1="18" x2="6.01" y2="18" />
+                            </svg>
+                            EC2 Instances
+                        </div>
+                    </div>
+                    <div class="health-grid" id="instanceGrid">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
+                                    <rect x="2" y="14" width="20" height="8" rx="2" ry="2" />
+                                    <line x1="6" y1="6" x2="6.01" y2="6" />
+                                    <line x1="6" y1="18" x2="6.01" y2="18" />
+                                </svg>
+                            </div>
+                            <p>Loading instances...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <svg class="section-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                                <path d="M13.73 21a2 2 0 01-3.46 0" />
+                            </svg>
+                            CloudWatch Alarms
+                        </div>
+                    </div>
+                    <div class="health-grid" id="alarmGrid">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                                    <path d="M13.73 21a2 2 0 01-3.46 0" />
+                                </svg>
+                            </div>
+                            <p>Loading alarms...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chaos Lab View -->
+            <div class="view" id="view-chaos">
+                <div class="page-header">
+                    <div>
+                        <div class="page-title">Chaos Engineering Lab</div>
+                        <div class="page-subtitle">Trigger controlled failure scenarios to test resilience</div>
+                    </div>
+                </div>
+
+                <div class="chaos-grid">
+                    <div class="chaos-card">
+                        <div class="chaos-icon">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21.05 4.95A7 7 0 1115 3.05" />
+                                <path d="M21 3v4h-4" />
+                                <circle cx="12" cy="12" r="1" />
+                                <path d="M12 12v5" />
+                            </svg>
+                        </div>
+                        <div class="chaos-title">Disk Fill</div>
+                        <div class="chaos-desc">Fill the root partition with garbage data to trigger disk-critical alarm
+                            and AI remediation.</div>
+                        <button class="btn btn-chaos" onclick="triggerChaos('disk-fill')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                            </svg>
+                            Trigger
+                        </button>
+                    </div>
+                    <div class="chaos-card">
+                        <div class="chaos-icon">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="2" y1="12" x2="22" y2="12" />
+                                <path
+                                    d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+                            </svg>
+                        </div>
+                        <div class="chaos-title">Nginx Crash</div>
+                        <div class="chaos-desc">Stop the Nginx service to simulate a web server failure and ALB health
+                            check failure.</div>
+                        <button class="btn btn-chaos" onclick="triggerChaos('nginx-crash')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                            </svg>
+                            Trigger
+                        </button>
+                    </div>
+                    <div class="chaos-card">
+                        <div class="chaos-icon">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" />
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="17" x2="12.01" y2="17" />
+                            </svg>
+                        </div>
+                        <div class="chaos-title">Memory Exhaustion</div>
+                        <div class="chaos-desc">Consume excessive memory to trigger OOM conditions and memory-critical
+                            alarm.</div>
+                        <button class="btn btn-chaos" onclick="triggerChaos('oom')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                            </svg>
+                            Trigger
+                        </button>
+                    </div>
+                </div>
+
+                <div class="section" style="margin-top:24px">
+                    <div class="card">
+                        <div class="card-body chaos-warning">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--amber)"
+                                stroke-width="2">
+                                <path
+                                    d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                                <line x1="12" y1="9" x2="12" y2="13" />
+                                <line x1="12" y1="17" x2="12.01" y2="17" />
+                            </svg>
+                            <div>
+                                <p>Chaos scenarios will trigger real alarms and AI-driven remediation workflows.</p>
+                                <p class="chaos-warning-sub">The agent will diagnose the issue, generate a fix, and
+                                    submit it for your approval.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Archives View -->
+            <div class="view" id="view-archives">
+                <div class="page-header">
+                    <div>
+                        <div class="page-title">Log Archives</div>
+                        <div class="page-subtitle">Files archived to S3 during remediation</div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="loadArchives()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="23 4 23 10 17 10" />
+                                <polyline points="1 20 1 14 7 14" />
+                                <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+                            </svg>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body" style="padding:0">
+                        <table class="archive-table" id="archiveTable">
+                            <thead>
+                                <tr>
+                                    <th>File Name</th>
+                                    <th>Size (MB)</th>
+                                    <th>Archived At</th>
+                                </tr>
+                            </thead>
+                            <tbody id="archiveBody">
+                                <tr>
+                                    <td colspan="3" class="empty-state">
+                                        <div class="empty-icon">
+                                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="1.5">
+                                                <polyline points="21 8 21 21 3 21 3 8" />
+                                                <rect x="1" y="3" width="22" height="5" />
+                                                <line x1="10" y1="12" x2="14" y2="12" />
+                                            </svg>
+                                        </div>
+                                        <p>Loading archives...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div style="margin-top:12px;font-size:12px;color:var(--text-muted)" id="archiveBucket"></div>
+            </div>
+
+            <!-- Metrics View -->
+            <div class="view" id="view-metrics">
+                <div class="page-header">
+                    <div>
+                        <div class="page-title">Incident Metrics</div>
+                        <div class="page-subtitle">Trends, MTTR, and resolution statistics</div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="loadMetrics()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="23 4 23 10 17 10" />
+                                <polyline points="1 20 1 14 7 14" />
+                                <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+                            </svg>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Metrics Stat Cards -->
+                <div class="stats-row">
+                    <div class="stat-card blue">
+                        <div class="stat-header">
+                            <span class="stat-label">Total Incidents</span>
+                            <span class="stat-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="stat-value" id="metrics-total">—</div>
+                        <div class="stat-detail">All time</div>
+                    </div>
+                    <div class="stat-card purple">
+                        <div class="stat-header">
+                            <span class="stat-label">Avg MTTR</span>
+                            <span class="stat-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <polyline points="12 6 12 12 16 14" />
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="stat-value" id="metrics-mttr">—</div>
+                        <div class="stat-detail">Mean time to resolve</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-header">
+                            <span class="stat-label">Success Rate</span>
+                            <span class="stat-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="stat-value" id="metrics-success">—</div>
+                        <div class="stat-detail" id="metrics-resolved-detail">Of resolved incidents</div>
+                    </div>
+                    <div class="stat-card amber">
+                        <div class="stat-header">
+                            <span class="stat-label">Total Resolved</span>
+                            <span class="stat-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                                    <polyline points="22 4 12 14.01 9 11.01" />
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="stat-value" id="metrics-resolved">—</div>
+                        <div class="stat-detail">Completed + failed + rejected</div>
+                    </div>
+                </div>
+
+                <!-- Chart Grid -->
+                <div class="metrics-grid">
+                    <div class="card">
+                        <div class="section-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="18" y1="20" x2="18" y2="10" />
+                                <line x1="12" y1="20" x2="12" y2="4" />
+                                <line x1="6" y1="20" x2="6" y2="14" />
+                            </svg>
+                            Daily Trend (Last 7 Days)
+                        </div>
+                        <div class="chart-container" id="barChartContainer">
+                            <div class="empty-state">
+                                <p>Loading chart data...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="section-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 2a10 10 0 0110 10" />
+                            </svg>
+                            Status Distribution
+                        </div>
+                        <div class="chart-container" id="donutChartContainer">
+                            <div class="empty-state">
+                                <p>Loading chart data...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="report-modal-overlay" id="reportModal" style="display:none">
+        <div class="report-modal">
+            <div class="report-modal-header">
+                <span class="page-title">Post-Incident Report</span>
+                <button class="btn btn-secondary" onclick="closeReportModal()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                    Close
+                </button>
+            </div>
+            <div class="report-content" id="reportContent"></div>
+            <div class="report-actions">
+                <button class="btn btn-primary" onclick="copyReport()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                    </svg>
+                    Copy Markdown
+                </button>
+                <button class="btn btn-secondary" onclick="downloadReport()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Download .md
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+
+</html>

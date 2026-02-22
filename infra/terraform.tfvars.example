@@ -1,0 +1,4 @@
+# Copy to terraform.tfvars and fill in. Never commit terraform.tfvars.
+
+gemini_api_key = "your-gemini-api-key-here"
+gemini_model   = "gemini-1.5-pro"

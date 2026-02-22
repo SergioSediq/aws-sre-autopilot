@@ -1,0 +1,49 @@
+# Environment Variables
+.env
+*.env
+.env.local
+.env.*.local
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+*.tfvars
+.terraform.lock.hcl
+*.tfplan
+override.tf
+override.tf.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+venv/
+.venv/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# OS
+.DS_Store
+desktop.ini
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Infra test artifacts
+infra/response*.json
+
+# Build artifacts
+dist/
+*.zip
